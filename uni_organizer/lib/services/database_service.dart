@@ -10,16 +10,11 @@ class DatabaseService {
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // User profile reference
   DocumentReference get userDoc => _db.collection('users').doc(uid);
 
-  // Tasks collection
   CollectionReference get taskCollection => userDoc.collection('tasks');
 
-  // Schedule collection
   CollectionReference get scheduleCollection => userDoc.collection('schedule');
-
-  // ---------- USER PROFILE ----------
 
   Future<void> createUserProfile(String email) async {
     await userDoc.set({
@@ -52,8 +47,6 @@ class DatabaseService {
       await userDoc.update(updates);
     }
   }
-
-  // ---------- TASKS ----------
 
   Future<void> addTask(String title, String description, DateTime date) async {
     await taskCollection.add({
@@ -99,8 +92,6 @@ class DatabaseService {
   Future<void> deleteTask(String taskId) async {
     await taskCollection.doc(taskId).delete();
   }
-
-  // ---------- SCHEDULE ----------
 
   Stream<List<ScheduleItem>> get schedule {
     return scheduleCollection

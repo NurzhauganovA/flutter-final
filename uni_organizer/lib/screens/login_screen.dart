@@ -11,7 +11,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  bool _isLogin = true; // Переключатель между Входом и Регистрацией
+  bool _isLogin = true;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -33,10 +33,9 @@ class _LoginScreenState extends State<LoginScreen> {
           password: _passwordController.text.trim(),
         );
       }
-      // Если успеха, StreamBuilder в main.dart сам переключит экран
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString().replaceAll(RegExp(r'\[.*\]'), ''); // Убираем технические коды
+        _errorMessage = e.toString().replaceAll(RegExp(r'\[.*\]'), '');
       });
     } finally {
       if (mounted) setState(() => _isLoading = false);

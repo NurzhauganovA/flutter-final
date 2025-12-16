@@ -20,7 +20,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   void initState() {
     super.initState();
-    // Уведомления уже инициализированы в main.dart, просто обновляем их
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateNotifications();
     });
@@ -28,7 +27,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
 
   void _updateNotifications() {
     final scheduleProvider = context.read<ScheduleProvider>();
-    // Слушаем изменения расписания и обновляем уведомления автоматически
     scheduleProvider.scheduleStream.listen((items) {
       _notificationService.scheduleClassNotifications(items);
     });
@@ -129,7 +127,6 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             return _buildEmptyState();
           }
 
-          // Group by weekday
           final Map<int, List<ScheduleItem>> byDay = {};
           for (final item in items) {
             byDay.putIfAbsent(item.weekday, () => []).add(item);

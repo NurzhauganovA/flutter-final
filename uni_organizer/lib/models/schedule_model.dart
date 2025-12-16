@@ -3,12 +3,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ScheduleItem {
   final String id;
   final String subject;
-  final String type; // Lecture, Lab, Seminar, etc.
+  final String type;
   final String location;
   final String teacher;
-  final int weekday; // 1 = Monday ... 7 = Sunday
-  final int startMinutes; // minutes from 00:00
-  final int endMinutes; // minutes from 00:00
+  final int weekday;
+  final int startMinutes;
+  final int endMinutes;
 
   ScheduleItem({
     required this.id,

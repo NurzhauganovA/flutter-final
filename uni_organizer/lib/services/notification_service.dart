@@ -19,33 +19,23 @@ class NotificationService {
   Future<void> initialize() async {
     if (_isInitialized) return;
     
-    // Инициализируем таймзоны с полными данными (включая Asia/Almaty для Астаны)
-    tz.initializeTimeZones();
+    initializeTimeZones();
 
-    // Получаем таймзону устройства
     String timeZoneName;
     try {
       timeZoneName = await FlutterTimezone.getLocalTimezone();
-      print('🌍 Detected timezone: $timeZoneName');
     } catch (e) {
-      print('⚠️ Failed to get timezone, using Asia/Almaty (Astana): $e');
-      timeZoneName = 'Asia/Almaty'; // Астана, Казахстан (+5)
+      timeZoneName = 'Asia/Almaty';
     }
 
-    // Устанавливаем таймзону
     try {
       final location = tz.getLocation(timeZoneName);
       tz.setLocalLocation(location);
-      print('✅ Timezone set to: ${location.name}');
     } catch (e) {
-      print('⚠️ Timezone $timeZoneName not found, trying Asia/Almaty: $e');
       try {
-        // Пробуем Астану напрямую
         final location = tz.getLocation('Asia/Almaty');
         tz.setLocalLocation(location);
-        print('✅ Timezone set to Asia/Almaty (Astana)');
       } catch (e2) {
-        print('❌ Failed to set timezone, using UTC: $e2');
         tz.setLocalLocation(tz.getLocation('UTC'));
       }
     }
@@ -67,14 +57,10 @@ class NotificationService {
 
     await flutterLocalNotificationsPlugin.initialize(
       initializationSettings,
-      onDidReceiveNotificationResponse: (details) {
-        // Обработка нажатия на уведомление
-        print('📱 Notification tapped: ${details.payload}');
-      },
+      onDidReceiveNotificationResponse: (details) {},
     );
     
     _isInitialized = true;
-    print('✅ NotificationService initialized');
   }
 
   Future<bool> requestPermissions() async {
@@ -89,7 +75,6 @@ class NotificationService {
       
       if (androidImplementation != null) {
         final granted = await androidImplementation.requestNotificationsPermission();
-        print('📱 Android notification permission: $granted');
         return granted ?? false;
       }
     } else if (Platform.isIOS) {
@@ -103,7 +88,6 @@ class NotificationService {
           badge: true,
           sound: true,
         );
-        print('📱 iOS notification permission: $granted');
         return granted ?? false;
       }
     }
@@ -138,32 +122,22 @@ class NotificationService {
     if (!_isInitialized) {
       await initialize();
     }
-    
-    print("🔔 Scheduling notifications for ${items.length} classes");
-    
-    // Отменяем только уведомления расписания (ID от 10000 до 99999)
-    for (int i = 10000; i < 99999; i++) {
-      await flutterLocalNotificationsPlugin.cancel(i);
-    }
 
     int scheduledCount = 0;
     for (var item in items) {
       try {
-        // Вычисляем время напоминания (за 5 минут до начала)
+        final int notificationId = 10000 + (item.id.hashCode % 89999).abs();
+
         final notificationTime = _nextInstanceOfDayAndTime(
           item.weekday,
           item.startMinutes,
           minutesOffset: 5,
         );
-        
-        // Проверяем, что время в будущем
+
         final now = tz.TZDateTime.now(tz.local);
         if (notificationTime.isBefore(now)) {
-          print("⏭️ Skipping ${item.subject} - notification time is in the past");
           continue;
         }
-
-        final int notificationId = 10000 + (item.id.hashCode % 89999).abs();
 
         await flutterLocalNotificationsPlugin.zonedSchedule(
           notificationId,
@@ -188,18 +162,15 @@ class NotificationService {
           ),
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
+          UILocalNotificationDateInterpretation.absoluteTime,
           matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
         );
-        
+
         scheduledCount++;
-        print("✅ Scheduled: ${item.subject} at ${notificationTime.toString()}");
       } catch (e) {
-        print("❌ Error scheduling ${item.subject}: $e");
+        // Error scheduling notification
       }
     }
-    
-    print("✅ Total scheduled: $scheduledCount/${items.length}");
   }
 
   Future<void> scheduleTaskNotifications(List<Task> tasks) async {
@@ -207,9 +178,6 @@ class NotificationService {
       await initialize();
     }
     
-    print("🔔 Scheduling notifications for ${tasks.length} tasks");
-    
-    // Отменяем только уведомления задач (ID от 20000 до 29999)
     for (int i = 20000; i < 29999; i++) {
       await flutterLocalNotificationsPlugin.cancel(i);
     }
@@ -218,41 +186,36 @@ class NotificationService {
     final now = tz.TZDateTime.now(tz.local);
     
     for (var task in tasks) {
-      if (task.isDone) continue; // Пропускаем выполненные задачи
+      if (task.isDone) continue;
       
       try {
-        // Создаем дату задачи в локальной таймзоне
         final taskDate = tz.TZDateTime.from(task.date, tz.local);
         
-        // Напоминание за день до дедлайна в 9:00
         final reminderDate = tz.TZDateTime(
           tz.local,
           taskDate.year,
           taskDate.month,
           taskDate.day,
-          9, // 9:00 утра
+          9,
           0,
         ).subtract(const Duration(days: 1));
         
-        // Если напоминание уже прошло, пропускаем
         if (reminderDate.isBefore(now)) {
           continue;
         }
         
-        // Также напоминание в день дедлайна в 8:00
         final dayOfDeadline = tz.TZDateTime(
           tz.local,
           taskDate.year,
           taskDate.month,
           taskDate.day,
-          8, // 8:00 утра
+          8,
           0,
         );
         
         final int reminderId = 20000 + (task.id.hashCode % 9999).abs();
         final int deadlineId = 20000 + 10000 + (task.id.hashCode % 9999).abs();
 
-        // Напоминание за день
         if (reminderDate.isAfter(now)) {
           await flutterLocalNotificationsPlugin.zonedSchedule(
             reminderId,
@@ -282,7 +245,6 @@ class NotificationService {
           scheduledCount++;
         }
         
-        // Напоминание в день дедлайна
         if (dayOfDeadline.isAfter(now) && dayOfDeadline.isBefore(taskDate.add(const Duration(hours: 1)))) {
           await flutterLocalNotificationsPlugin.zonedSchedule(
             deadlineId,
@@ -312,11 +274,9 @@ class NotificationService {
           scheduledCount++;
         }
       } catch (e) {
-        print("❌ Error scheduling task ${task.title}: $e");
+        // Error scheduling task notification
       }
     }
-    
-    print("✅ Total task notifications scheduled: $scheduledCount");
   }
 
   tz.TZDateTime _nextInstanceOfDayAndTime(
@@ -325,12 +285,10 @@ class NotificationService {
     required int minutesOffset,
   }) {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    print('🕐 Current time: $now (timezone: ${tz.local.name})');
 
     final int hour = startMinutes ~/ 60;
     final int minute = startMinutes % 60;
 
-    // Создаем дату начала пары сегодня
     tz.TZDateTime scheduledDate = tz.TZDateTime(
       tz.local,
       now.year,
@@ -340,21 +298,16 @@ class NotificationService {
       minute,
     );
 
-    // Сдвигаем на нужное время напоминания (вычитаем минуты)
     scheduledDate = scheduledDate.subtract(Duration(minutes: minutesOffset));
 
-    // Логика переноса дней:
-    // 1. Сначала находим правильный день недели
     while (scheduledDate.weekday != weekday) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
 
-    // 2. Если рассчитанное время напоминания УЖЕ прошло, переносим на следующую неделю
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 7));
     }
 
-    print('📅 Scheduled notification: $scheduledDate (weekday: $weekday, time: $hour:$minute)');
     return scheduledDate;
   }
 }

@@ -116,7 +116,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           final profile = snapshot.data;
 
-          // Initialize controllers with current data
           if (profile != null && !_isEditing) {
             _nameController.text = profile.name;
             _majorController.text = profile.major;

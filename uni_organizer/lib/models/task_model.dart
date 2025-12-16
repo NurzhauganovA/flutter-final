@@ -15,19 +15,16 @@ class Task {
     this.isDone = false,
   });
 
-  // Преобразование данных ИЗ Firebase в наш объект
   factory Task.fromMap(Map<String, dynamic> data, String documentId) {
     return Task(
       id: documentId,
       title: data['title'] ?? '',
       description: data['description'] ?? '',
-      // Firebase хранит дату как Timestamp, нам нужно конвертировать в DateTime
       date: (data['date'] as Timestamp).toDate(),
       isDone: data['isDone'] ?? false,
     );
   }
 
-  // Преобразование НАШЕГО объекта в формат для Firebase
   Map<String, dynamic> toMap() {
     return {
       'title': title,

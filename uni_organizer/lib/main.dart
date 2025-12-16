@@ -14,11 +14,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  // Initialize notifications
   final notificationService = NotificationService();
   await notificationService.initialize();
-  
-  // Request permissions (important for Android 13+)
   await notificationService.requestPermissions();
 
   runApp(const UniOrganizerApp());

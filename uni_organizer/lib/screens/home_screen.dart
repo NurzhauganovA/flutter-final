@@ -20,13 +20,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _filter = 'all'; // all, today, upcoming, completed
+  String _filter = 'all';
   final NotificationService _notificationService = NotificationService();
 
   @override
   void initState() {
     super.initState();
-    // Обновляем уведомления для задач при загрузке экрана
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateTaskNotifications();
     });
@@ -34,7 +33,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _updateTaskNotifications() {
     final taskProvider = context.read<TaskProvider>();
-    // Слушаем изменения задач и обновляем уведомления автоматически
     taskProvider.tasksStream.listen((tasks) {
       _notificationService.scheduleTaskNotifications(tasks);
     });

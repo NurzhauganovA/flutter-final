@@ -15,7 +15,6 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
   final _descController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
 
-  // Функция выбора даты
   void _pickDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -30,23 +29,20 @@ class _AddTaskSheetState extends State<AddTaskSheet> {
     }
   }
 
-  // Функция сохранения
   void _submitData() {
     if (_titleController.text.isEmpty) return;
 
-    // Вызываем провайдер для сохранения в Firebase
     context.read<TaskProvider>().addTask(
       _titleController.text,
       _descController.text,
       _selectedDate,
     );
 
-    Navigator.of(context).pop(); // Закрываем окно
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Padding для того, чтобы клавиатура не перекрывала поля
     return Padding(
       padding: EdgeInsets.only(
         top: 20,

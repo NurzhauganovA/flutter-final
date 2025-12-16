@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../providers/task_provider.dart';
 import '../services/auth_service.dart';
+import '../services/notification_service.dart';
 import '../models/task_model.dart';
 import '../widgets/add_task_sheet.dart';
 import '../widgets/edit_task_sheet.dart';
@@ -20,6 +21,24 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String _filter = 'all'; // all, today, upcoming, completed
+  final NotificationService _notificationService = NotificationService();
+
+  @override
+  void initState() {
+    super.initState();
+    // Обновляем уведомления для задач при загрузке экрана
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateTaskNotifications();
+    });
+  }
+
+  void _updateTaskNotifications() {
+    final taskProvider = context.read<TaskProvider>();
+    // Слушаем изменения задач и обновляем уведомления автоматически
+    taskProvider.tasksStream.listen((tasks) {
+      _notificationService.scheduleTaskNotifications(tasks);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
             isScrollControlled: true,
             backgroundColor: Colors.transparent,
             builder: (_) => const AddTaskSheet(),
-          );
+          ).then((_) => _updateTaskNotifications());
         },
       ),
       body: Column(
@@ -222,9 +241,10 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.only(right: 24),
         child: const Icon(Icons.delete_rounded, color: Colors.white, size: 28),
       ),
-      onDismissed: (direction) {
-        provider.deleteTask(task.id);
-        ScaffoldMessenger.of(context).showSnackBar(
+                onDismissed: (direction) {
+                  provider.deleteTask(task.id);
+                  _updateTaskNotifications();
+                  ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Text('Task deleted'),
             behavior: SnackBarBehavior.floating,
@@ -260,7 +280,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
                 builder: (_) => EditTaskSheet(task: task),
-              );
+              ).then((_) => _updateTaskNotifications());
             },
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -268,7 +288,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   GestureDetector(
-                    onTap: () => provider.toggleTask(task.id, task.isDone),
+                    onTap: () {
+                      provider.toggleTask(task.id, task.isDone);
+                      _updateTaskNotifications();
+                    },
                     child: Container(
                       width: 24,
                       height: 24,

@@ -15,7 +15,11 @@ void main() async {
   await Firebase.initializeApp();
 
   // Initialize notifications
-  await NotificationService().initialize();
+  final notificationService = NotificationService();
+  await notificationService.initialize();
+  
+  // Request permissions (important for Android 13+)
+  await notificationService.requestPermissions();
 
   runApp(const UniOrganizerApp());
 }

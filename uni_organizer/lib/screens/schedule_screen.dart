@@ -20,18 +20,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   @override
   void initState() {
     super.initState();
-    _initializeNotifications();
-  }
-
-  Future<void> _initializeNotifications() async {
-    await _notificationService.initialize();
-    await _notificationService.requestPermissions();
-    _updateNotifications();
+    // Уведомления уже инициализированы в main.dart, просто обновляем их
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateNotifications();
+    });
   }
 
   void _updateNotifications() {
     final scheduleProvider = context.read<ScheduleProvider>();
-    scheduleProvider.scheduleStream.first.then((items) {
+    // Слушаем изменения расписания и обновляем уведомления автоматически
+    scheduleProvider.scheduleStream.listen((items) {
       _notificationService.scheduleClassNotifications(items);
     });
   }

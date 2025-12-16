@@ -48,21 +48,28 @@ class DatabaseService {
     }
   }
 
-  Future<void> addTask(String title, String description, DateTime date) async {
+  Future<void> addTask(
+      String title,
+      String description,
+      DateTime date, {
+        TaskPriority priority = TaskPriority.medium,
+        TaskCategory category = TaskCategory.other,
+        List<String> tags = const [],
+      }) async {
     await taskCollection.add({
       'title': title,
       'description': description,
       'date': Timestamp.fromDate(date),
       'isDone': false,
+      'priority': priority.name,
+      'category': category.name,
+      'tags': tags,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
 
   Stream<List<Task>> get tasks {
-    return taskCollection
-        .orderBy('date', descending: false)
-        .snapshots()
-        .map((snapshot) {
+    return taskCollection.orderBy('date', descending: false).snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
         return Task.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
@@ -78,11 +85,17 @@ class DatabaseService {
     String? title,
     String? description,
     DateTime? date,
+    TaskPriority? priority,
+    TaskCategory? category,
+    List<String>? tags,
   }) async {
     final Map<String, dynamic> updates = {};
     if (title != null) updates['title'] = title;
     if (description != null) updates['description'] = description;
     if (date != null) updates['date'] = Timestamp.fromDate(date);
+    if (priority != null) updates['priority'] = priority.name;
+    if (category != null) updates['category'] = category.name;
+    if (tags != null) updates['tags'] = tags;
 
     if (updates.isNotEmpty) {
       await taskCollection.doc(taskId).update(updates);

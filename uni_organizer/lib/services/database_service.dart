@@ -2,33 +2,72 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/task_model.dart';
 import '../models/schedule_model.dart';
+import '../models/user_model.dart';
 
 class DatabaseService {
   final String uid;
   DatabaseService({required this.uid});
 
-  // Ссылка на коллекцию задач конкретного пользователя
-  CollectionReference get taskCollection =>
-      FirebaseFirestore.instance.collection('users').doc(uid).collection('tasks');
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  // Ссылка на коллекцию расписания
-  CollectionReference get scheduleCollection =>
-      FirebaseFirestore.instance.collection('users').doc(uid).collection('schedule');
+  // User profile reference
+  DocumentReference get userDoc => _db.collection('users').doc(uid);
 
-  // 1. Добавить задачу (CREATE)
+  // Tasks collection
+  CollectionReference get taskCollection => userDoc.collection('tasks');
+
+  // Schedule collection
+  CollectionReference get scheduleCollection => userDoc.collection('schedule');
+
+  // ---------- USER PROFILE ----------
+
+  Future<void> createUserProfile(String email) async {
+    await userDoc.set({
+      'email': email,
+      'name': 'Student',
+      'major': '',
+      'group': '',
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Stream<UserProfile?> get userProfile {
+    return userDoc.snapshots().map((doc) {
+      if (!doc.exists) return null;
+      return UserProfile.fromMap(doc.data() as Map<String, dynamic>, uid);
+    });
+  }
+
+  Future<void> updateUserProfile({
+    String? name,
+    String? major,
+    String? group,
+  }) async {
+    final Map<String, dynamic> updates = {};
+    if (name != null) updates['name'] = name;
+    if (major != null) updates['major'] = major;
+    if (group != null) updates['group'] = group;
+
+    if (updates.isNotEmpty) {
+      await userDoc.update(updates);
+    }
+  }
+
+  // ---------- TASKS ----------
+
   Future<void> addTask(String title, String description, DateTime date) async {
     await taskCollection.add({
       'title': title,
       'description': description,
       'date': Timestamp.fromDate(date),
       'isDone': false,
+      'createdAt': FieldValue.serverTimestamp(),
     });
   }
 
-  // 2. Получить список задач (READ) - Поток данных в реальном времени
   Stream<List<Task>> get tasks {
     return taskCollection
-        .orderBy('date', descending: false) // Сортируем по дате
+        .orderBy('date', descending: false)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs.map((doc) {
@@ -37,19 +76,32 @@ class DatabaseService {
     });
   }
 
-  // 3. Обновить статус (UPDATE)
   Future<void> toggleTaskStatus(String taskId, bool currentStatus) async {
     await taskCollection.doc(taskId).update({'isDone': !currentStatus});
   }
 
-  // 4. Удалить задачу (DELETE)
+  Future<void> updateTask({
+    required String taskId,
+    String? title,
+    String? description,
+    DateTime? date,
+  }) async {
+    final Map<String, dynamic> updates = {};
+    if (title != null) updates['title'] = title;
+    if (description != null) updates['description'] = description;
+    if (date != null) updates['date'] = Timestamp.fromDate(date);
+
+    if (updates.isNotEmpty) {
+      await taskCollection.doc(taskId).update(updates);
+    }
+  }
+
   Future<void> deleteTask(String taskId) async {
     await taskCollection.doc(taskId).delete();
   }
 
-  // ---------- Расписание ----------
+  // ---------- SCHEDULE ----------
 
-  // Поток расписания, отсортированного по дню недели и времени
   Stream<List<ScheduleItem>> get schedule {
     return scheduleCollection
         .orderBy('weekday')
@@ -79,7 +131,32 @@ class DatabaseService {
       'weekday': weekday,
       'startMinutes': startMinutes,
       'endMinutes': endMinutes,
+      'createdAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  Future<void> updateScheduleItem({
+    required String id,
+    String? subject,
+    String? type,
+    String? location,
+    String? teacher,
+    int? weekday,
+    int? startMinutes,
+    int? endMinutes,
+  }) async {
+    final Map<String, dynamic> updates = {};
+    if (subject != null) updates['subject'] = subject;
+    if (type != null) updates['type'] = type;
+    if (location != null) updates['location'] = location;
+    if (teacher != null) updates['teacher'] = teacher;
+    if (weekday != null) updates['weekday'] = weekday;
+    if (startMinutes != null) updates['startMinutes'] = startMinutes;
+    if (endMinutes != null) updates['endMinutes'] = endMinutes;
+
+    if (updates.isNotEmpty) {
+      await scheduleCollection.doc(id).update(updates);
+    }
   }
 
   Future<void> deleteScheduleItem(String id) async {

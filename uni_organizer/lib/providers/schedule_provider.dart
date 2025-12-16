@@ -32,9 +32,30 @@ class ScheduleProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updateScheduleItem({
+    required String id,
+    String? subject,
+    String? type,
+    String? location,
+    String? teacher,
+    int? weekday,
+    int? startMinutes,
+    int? endMinutes,
+  }) async {
+    await _db.updateScheduleItem(
+      id: id,
+      subject: subject,
+      type: type,
+      location: location,
+      teacher: teacher,
+      weekday: weekday,
+      startMinutes: startMinutes,
+      endMinutes: endMinutes,
+    );
+    notifyListeners();
+  }
+
   Future<void> deleteScheduleItem(String id) async {
     await _db.deleteScheduleItem(id);
   }
 }
-
-

@@ -8,7 +8,6 @@ import 'providers/task_provider.dart';
 import 'providers/schedule_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
-import 'screens/schedule_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +35,8 @@ class UniOrganizerApp extends StatelessWidget {
             elevation: 2,
             centerTitle: true,
           ),
-          cardTheme: const CardTheme(
+          // ИЗМЕНЕНИЕ: Используем CardThemeData вместо CardTheme
+          cardTheme: const CardThemeData(
             elevation: 3,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(16)),

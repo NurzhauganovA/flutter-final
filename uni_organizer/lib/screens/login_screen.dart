@@ -73,12 +73,23 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
   }
 
   Future<void> _submit() async {
-    if (_emailController.text.trim().isEmpty ||
-        _passwordController.text.trim().isEmpty) {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
       setState(() {
         _errorMessage = 'Please fill in all fields';
       });
       return;
+    }
+
+    if (!_isLogin) {
+      if (!email.endsWith('sdu.edu.kz')) {
+        setState(() {
+          _errorMessage = 'Registration is allowed only for @sdu.edu.kz or @stu.sdu.edu.kz emails';
+        });
+        return;
+      }
     }
 
     setState(() {

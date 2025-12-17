@@ -8,7 +8,7 @@ import 'services/notification_service.dart';
 import 'providers/task_provider.dart';
 import 'providers/schedule_provider.dart';
 import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -102,7 +102,7 @@ class UniOrganizerApp extends StatelessWidget {
           stream: AuthService().authStateChanges,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return const HomeScreen();
+              return const MainScreen();
             }
             return const LoginScreen();
           },

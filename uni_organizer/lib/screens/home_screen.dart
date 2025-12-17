@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import '../providers/task_provider.dart';
-import '../services/auth_service.dart';
 import '../services/notification_service.dart';
 import '../models/task_model.dart';
 import '../widgets/add_task_sheet.dart';
 import '../widgets/edit_task_sheet.dart';
-import 'profile_screen.dart';
-import 'schedule_screen.dart';
-import 'notes_screen.dart';
-import 'dashboard_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -51,7 +45,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
 
     return Scaffold(
@@ -88,7 +81,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: _buildDrawer(context, user),
       floatingActionButton: FloatingActionButton(
         backgroundColor: const Color(0xFF6C5CE7),
         foregroundColor: Colors.white,
@@ -678,184 +670,4 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildDrawer(BuildContext context, User? user) {
-    return Drawer(
-      child: Column(
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF6C5CE7), Color(0xFFA29BFE)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 70,
-                  height: 70,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 15,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.person_rounded,
-                    size: 40,
-                    color: Color(0xFF6C5CE7),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'UniOrganizer',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  user?.email ?? 'student@university.edu',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              children: [
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.dashboard_rounded,
-                  title: 'Dashboard',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const DashboardScreen(),
-                      ),
-                    );
-                  },
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.check_circle_outline_rounded,
-                  title: 'My Tasks',
-                  onTap: () => Navigator.pop(context),
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.calendar_month_rounded,
-                  title: 'Schedule',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ScheduleScreen(),
-                      ),
-                    );
-                  },
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.note_rounded,
-                  title: 'Notes',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const NotesScreen(),
-                      ),
-                    );
-                  },
-                ),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.person_outline_rounded,
-                  title: 'Profile',
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ProfileScreen(),
-                      ),
-                    );
-                  },
-                ),
-                const Divider(height: 32),
-                _buildDrawerItem(
-                  context,
-                  icon: Icons.logout_rounded,
-                  title: 'Logout',
-                  color: Colors.red,
-                  onTap: () {
-                    Navigator.pop(context);
-                    AuthService().signOut();
-                  },
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Version 2.0.0',
-              style: TextStyle(
-                color: Colors.grey[500],
-                fontSize: 12,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDrawerItem(
-      BuildContext context, {
-        required IconData icon,
-        required String title,
-        required VoidCallback onTap,
-        Color? color,
-      }) {
-    return ListTile(
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: (color ?? const Color(0xFF6C5CE7)).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: color ?? const Color(0xFF6C5CE7), size: 22),
-      ),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: color ?? const Color(0xFF1A1F36),
-          fontWeight: FontWeight.w600,
-          fontSize: 15,
-        ),
-      ),
-      onTap: onTap,
-    );
-  }
 }

@@ -135,9 +135,16 @@ class _EditScheduleSheetState extends State<EditScheduleSheet> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Colors.white,
+            const Color(0xFFF5F7FA),
+          ],
+        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       padding: EdgeInsets.only(
         top: 24,
@@ -150,31 +157,51 @@ class _EditScheduleSheetState extends State<EditScheduleSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6C5CE7).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.edit_calendar_rounded,
-                    color: Color(0xFF6C5CE7),
-                    size: 20,
-                  ),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF6C5CE7), Color(0xFFA29BFE)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                const SizedBox(width: 12),
-                const Text(
-                  'Edit Class',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1A1F36),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6C5CE7).withOpacity(0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
                   ),
-                ),
-              ],
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.edit_calendar_rounded,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  const Expanded(
+                    child: Text(
+                      'Edit Class',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: 24),
             TextField(
@@ -267,11 +294,26 @@ class _EditScheduleSheetState extends State<EditScheduleSheet> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF6C5CE7).withOpacity(0.05),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    const Color(0xFF6C5CE7).withOpacity(0.08),
+                    const Color(0xFFA29BFE).withOpacity(0.05),
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: const Color(0xFF6C5CE7).withOpacity(0.2),
+                  width: 1.5,
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6C5CE7).withOpacity(0.1),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
@@ -284,10 +326,10 @@ class _EditScheduleSheetState extends State<EditScheduleSheet> {
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[700],
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         InkWell(
                           onTap: () => _pickTime(isStart: true),
                           child: Container(
@@ -300,7 +342,6 @@ class _EditScheduleSheetState extends State<EditScheduleSheet> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Row(
-                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(
                                   Icons.access_time_rounded,
@@ -308,12 +349,15 @@ class _EditScheduleSheetState extends State<EditScheduleSheet> {
                                   color: Color(0xFF6C5CE7),
                                 ),
                                 const SizedBox(width: 6),
-                                Text(
-                                  _startTime.format(context),
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF1A1F36),
+                                Flexible(
+                                  child: Text(
+                                    _startTime.format(context),
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1A1F36),
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
@@ -324,9 +368,19 @@ class _EditScheduleSheetState extends State<EditScheduleSheet> {
                     ),
                   ),
                   Container(
-                    width: 1,
-                    height: 40,
-                    color: Colors.grey[300],
+                    width: 1.5,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          const Color(0xFF6C5CE7).withOpacity(0.3),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
                     margin: const EdgeInsets.symmetric(horizontal: 12),
                   ),
                   Expanded(
@@ -338,10 +392,10 @@ class _EditScheduleSheetState extends State<EditScheduleSheet> {
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[700],
-                            fontWeight: FontWeight.w500,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         InkWell(
                           onTap: () => _pickTime(isStart: false),
                           child: Container(
@@ -354,7 +408,6 @@ class _EditScheduleSheetState extends State<EditScheduleSheet> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Row(
-                              mainAxisSize: MainAxisSize.min,
                               children: [
                                 const Icon(
                                   Icons.access_time_filled_rounded,
@@ -362,12 +415,15 @@ class _EditScheduleSheetState extends State<EditScheduleSheet> {
                                   color: Color(0xFF6C5CE7),
                                 ),
                                 const SizedBox(width: 6),
-                                Text(
-                                  _endTime.format(context),
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF1A1F36),
+                                Flexible(
+                                  child: Text(
+                                    _endTime.format(context),
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1A1F36),
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ),
                               ],
@@ -415,22 +471,47 @@ class _EditScheduleSheetState extends State<EditScheduleSheet> {
               ),
             ),
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _submit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6C5CE7),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+            Container(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF6C5CE7), Color(0xFFA29BFE)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                elevation: 0,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6C5CE7).withOpacity(0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
               ),
-              child: const Text(
-                'Save Changes',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+              child: ElevatedButton(
+                onPressed: _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.save_rounded, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'Save Changes',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

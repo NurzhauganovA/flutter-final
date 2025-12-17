@@ -7,6 +7,7 @@ import '../models/task_model.dart';
 import '../services/auth_service.dart';
 import '../services/database_service.dart';
 import '../models/user_model.dart';
+import 'login_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -475,10 +476,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   child: const Text('Cancel'),
                 ),
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pop(context);
-                    Navigator.pop(context);
-                    AuthService().signOut();
+                    await AuthService().signOut();
+                    if (context.mounted) {
+                      Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                        (route) => false,
+                      );
+                    }
                   },
                   child: const Text(
                     'Logout',

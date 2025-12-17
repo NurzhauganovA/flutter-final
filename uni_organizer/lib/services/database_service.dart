@@ -44,7 +44,7 @@ class DatabaseService {
     if (group != null) updates['group'] = group;
 
     if (updates.isNotEmpty) {
-      await userDoc.update(updates);
+      await userDoc.set(updates, SetOptions(merge: true));
     }
   }
 

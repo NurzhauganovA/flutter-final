@@ -8,16 +8,21 @@ class AuthService {
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-  Future<void> signIn({required String email, required String password}) async {
-    await _auth.signInWithEmailAndPassword(email: email, password: password);
+  Future<UserCredential> signIn({required String email, required String password}) async {
+    return await _auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
-  Future<void> signUp({required String email, required String password}) async {
-    UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+  Future<UserCredential> signUp({required String email, required String password}) async {
+    UserCredential result = await _auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password
+    );
 
     if (result.user != null) {
       await DatabaseService(uid: result.user!.uid).createUserProfile(email);
     }
+
+    return result;
   }
 
   Future<void> signOut() async {

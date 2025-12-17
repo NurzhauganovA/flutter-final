@@ -27,7 +27,6 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
   void initState() {
     super.initState();
 
-    // Fade animation
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
@@ -38,7 +37,6 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       curve: Curves.easeInOut,
     );
 
-    // Slide animation
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
@@ -52,7 +50,6 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
       curve: Curves.easeOutCubic,
     ));
 
-    // Background animation
     _backgroundController = AnimationController(
       duration: const Duration(seconds: 20),
       vsync: this,
@@ -84,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     }
 
     if (!_isLogin) {
-      if (!email.endsWith('sdu.edu.kz')) {
+      if (!email.endsWith('@sdu.edu.kz') && !email.endsWith('@stu.sdu.edu.kz')) {
         setState(() {
           _errorMessage = 'Registration is allowed only for @sdu.edu.kz or @stu.sdu.edu.kz emails';
         });
@@ -99,25 +96,50 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
 
     try {
       if (_isLogin) {
+        print('Attempting to sign in...');
         await AuthService().signIn(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
+          email: email,
+          password: password,
         );
+        print('Sign in successful');
       } else {
+        print('Attempting to sign up...');
         await AuthService().signUp(
-          email: _emailController.text.trim(),
-          password: _passwordController.text.trim(),
+          email: email,
+          password: password,
         );
+        print('Sign up successful');
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account created successfully!'),
+              backgroundColor: Color(0xFF00D09C),
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       }
+
+      // Не нужно делать ничего больше - StreamBuilder обновится автоматически
+      print('Waiting for auth state to update...');
+
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString()
-            .replaceAll(RegExp(r'\[.*?\]'), '')
-            .replaceAll('Exception:', '')
-            .trim();
-      });
+      print('Auth error: $e');
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString()
+              .replaceAll(RegExp(r'\[.*?\]'), '')
+              .replaceAll('Exception:', '')
+              .replaceAll('firebase_auth/', '')
+              .trim();
+        });
+      }
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -136,10 +158,7 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
     return Scaffold(
       body: Stack(
         children: [
-          // Animated Background
           _buildAnimatedBackground(),
-
-          // Content
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -191,7 +210,6 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
           ),
           child: Stack(
             children: [
-              // Floating circles
               _buildFloatingCircle(
                 top: 100,
                 left: 30,
@@ -536,55 +554,55 @@ class _LoginScreenState extends State<LoginScreen> with TickerProviderStateMixin
           decoration: BoxDecoration(
             gradient: _isLoading
                 ? LinearGradient(
-                    colors: [
-                      Colors.grey[400]!,
-                      Colors.grey[500]!,
-                    ],
-                  )
+              colors: [
+                Colors.grey[400]!,
+                Colors.grey[500]!,
+              ],
+            )
                 : const LinearGradient(
-                    colors: [Color(0xFF6C5CE7), Color(0xFFA29BFE)],
-                  ),
+              colors: [Color(0xFF6C5CE7), Color(0xFFA29BFE)],
+            ),
             borderRadius: BorderRadius.circular(16),
             boxShadow: _isLoading
                 ? null
                 : [
-                    BoxShadow(
-                      color: const Color(0xFF6C5CE7).withOpacity(0.4),
-                      blurRadius: 15,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
+              BoxShadow(
+                color: const Color(0xFF6C5CE7).withOpacity(0.4),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
           child: Center(
             child: _isLoading
                 ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(
-                      color: Colors.white,
-                      strokeWidth: 3,
-                    ),
-                  )
+              width: 24,
+              height: 24,
+              child: CircularProgressIndicator(
+                color: Colors.white,
+                strokeWidth: 3,
+              ),
+            )
                 : Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _isLogin ? 'Sign In' : 'Create Account',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(
-                        Icons.arrow_forward_rounded,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                    ],
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  _isLogin ? 'Sign In' : 'Create Account',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
                   ),
+                ),
+                const SizedBox(width: 8),
+                const Icon(
+                  Icons.arrow_forward_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ],
+            ),
           ),
         ),
       ),

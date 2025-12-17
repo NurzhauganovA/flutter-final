@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -98,12 +99,34 @@ class UniOrganizerApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: StreamBuilder(
+        home: StreamBuilder<User?>(
           stream: AuthService().authStateChanges,
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                backgroundColor: Color(0xFF6C5CE7),
+                body: Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                  ),
+                ),
+              );
+            }
+
+            if (snapshot.hasError) {
+              return Scaffold(
+                body: Center(
+                  child: Text('Error: ${snapshot.error}'),
+                ),
+              );
+            }
+
+            if (snapshot.hasData && snapshot.data != null) {
+              print('User is logged in: ${snapshot.data!.email}'); // Для отладки
               return const MainScreen();
             }
+
+            print('User is not logged in'); // Для отладки
             return const LoginScreen();
           },
         ),

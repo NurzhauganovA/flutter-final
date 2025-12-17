@@ -17,13 +17,27 @@ class DatabaseService {
   CollectionReference get scheduleCollection => userDoc.collection('schedule');
 
   Future<void> createUserProfile(String email) async {
-    await userDoc.set({
-      'email': email,
-      'name': 'Student',
-      'major': '',
-      'group': '',
-      'createdAt': FieldValue.serverTimestamp(),
-    });
+    try {
+      // Проверяем, существует ли уже профиль
+      final doc = await userDoc.get();
+      if (doc.exists) {
+        print('User profile already exists, skipping creation');
+        return;
+      }
+
+      // Создаем новый профиль
+      await userDoc.set({
+        'email': email,
+        'name': 'Student',
+        'major': '',
+        'group': '',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+      print('User profile created successfully');
+    } catch (e) {
+      print('Error creating user profile: $e');
+      rethrow;
+    }
   }
 
   Stream<UserProfile?> get userProfile {

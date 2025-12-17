@@ -5,9 +5,9 @@ import '../models/schedule_model.dart';
 import '../services/database_service.dart';
 
 class ScheduleProvider with ChangeNotifier {
-  User? user = FirebaseAuth.instance.currentUser;
-
-  DatabaseService get _db => DatabaseService(uid: user?.uid ?? '');
+  DatabaseService get _db => DatabaseService(
+      uid: FirebaseAuth.instance.currentUser?.uid ?? ''
+  );
 
   Stream<List<ScheduleItem>> get scheduleStream => _db.schedule;
 

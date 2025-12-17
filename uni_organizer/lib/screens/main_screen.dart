@@ -3,6 +3,7 @@ import 'dashboard_screen.dart';
 import 'home_screen.dart';
 import 'schedule_screen.dart';
 import 'profile_screen.dart';
+import 'notes_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -18,6 +19,7 @@ class _MainScreenState extends State<MainScreen> {
     const DashboardScreen(),
     const HomeScreen(),
     const ScheduleScreen(),
+    const NotesScreen(),
     const ProfileScreen(),
   ];
 
@@ -48,7 +50,8 @@ class _MainScreenState extends State<MainScreen> {
                 _buildNavItem(Icons.dashboard_rounded, 'Dashboard', 0),
                 _buildNavItem(Icons.checklist_rounded, 'Tasks', 1),
                 _buildNavItem(Icons.calendar_today_rounded, 'Schedule', 2),
-                _buildNavItem(Icons.person_rounded, 'Profile', 3),
+                _buildNavItem(Icons.note_alt_rounded, 'Notes', 3),
+                _buildNavItem(Icons.person_rounded, 'Profile', 4),
               ],
             ),
           ),

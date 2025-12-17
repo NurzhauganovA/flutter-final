@@ -4,9 +4,9 @@ import '../services/database_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class TaskProvider with ChangeNotifier {
-  User? user = FirebaseAuth.instance.currentUser;
-
-  DatabaseService get _db => DatabaseService(uid: user?.uid ?? '');
+  DatabaseService get _db => DatabaseService(
+      uid: FirebaseAuth.instance.currentUser?.uid ?? ''
+  );
 
   Stream<List<Task>> get tasksStream => _db.tasks;
 
